@@ -1,0 +1,108 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+  "name": "sup-backend",
+  // "build": {
+  //   // Sets the run context to one level up instead of the .devcontainer folder.
+  //   "context": "..",
+  //   // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
+  //   "dockerfile": "../skelton_nestjs_deploy/Dockerfile.local"
+  // },
+  "build": {
+    "context": "..",
+    "dockerfile": "../docker/Dockerfile.api",
+    "target": "source"
+  },
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind",
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind"
+  ],
+  "postCreateCommand": "yarn",
+  // "postStartCommand": "yarn",
+  // "workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace,type=bind,consistency=delegated",
+  // "onCreateCommand": "git config --local core.editor code",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // "GitHub.copilot",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "redhat.vscode-yaml",
+        "eamodio.gitlens",
+        // "42Crunch.vscode-openapi",
+        // "rangav.vscode-thunder-client",
+        "ChakrounAnas.turbo-console-log",
+        "mhutchie.git-graph",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "extensions.verifySignature": false,
+        "files.insertFinalNewline": true,
+        "yaml.schemas": {
+          "https://d33vqc0rt9ld30.cloudfront.net/latest/gzip/CloudFormationResourceSpecification.json": [
+            "*.cf.yaml",
+            "*.cf.yml",
+            "cloud*formation/*.yaml",
+            "cloud*formation/*.yml"
+          ]
+        },
+        "yaml.customTags": [
+          "!And sequence",
+          "!Equals sequence",
+          "!If sequence",
+          "!Not sequence",
+          "!Or sequence",
+          "!Base64",
+          "!Cidr sequence",
+          "!Sub scalar",
+          "!Sub sequence",
+          "!Join sequence",
+          "!FindInMap sequence",
+          "!GetAtt scalar",
+          "!GetAtt sequence",
+          "!Base64 mapping",
+          "!GetAZs",
+          "!Select scalar",
+          "!Select sequence",
+          "!Split sequence",
+          "!ImportValue",
+          "!Condition",
+          "!Equals sequence",
+          "!And",
+          "!If",
+          "!Not",
+          "!Or",
+          "!Sub",
+          "!Ref"
+        ]
+      }
+    }
+  },
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Uncomment the next line to run commands after the container is created - for example installing curl.
+
+  // Uncomment to use the Docker CLI from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker.
+  // "mounts": [
+  //     {
+  //         "source": "/var/run/docker.sock",
+  //         "target": "/var/run/docker-host.sock",
+  //         "type": "bind"
+  //     }
+  // ]
+
+  // Configure tool-specific properties.
+  // "customizations": {},
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "node"
+}

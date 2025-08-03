@@ -1,0 +1,68 @@
+# https://zenn.dev/jrsyo/articles/e42de409e62f5d
+FROM node:22.11.0-slim AS node
+FROM ubuntu:focal-20241011 AS base
+
+RUN apt-get update \
+    && apt-get -qq install -y --no-install-recommends \
+    tini curl openssh-client procps git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=node /usr/local/include/ /usr/local/include/
+COPY --from=node /usr/local/lib/ /usr/local/lib/
+COPY --from=node /usr/local/bin/ /usr/local/bin/
+RUN corepack disable && corepack enable
+
+RUN groupadd --gid 1000 node \
+    && useradd --uid 1000 --gid node --shell /bin/bash --create-home node \
+    && mkdir /usr/src/app \
+    && chown -R node:node /usr/src/app
+
+WORKDIR /tmp
+COPY --chown=node:node package.json yarn.lock ./
+USER node
+RUN yarn install
+
+#### source ####
+FROM base AS source
+WORKDIR /workspace
+
+COPY --chown=node:node . .
+RUN yarn install
+RUN yarn run build
+RUN yarn install --immutable --immutable-cache --check-cache && yarn cache clean
+
+#### local・stging・prod ####
+FROM source AS prod
+WORKDIR /usr/src/app
+
+COPY --from=source --chown=node:node /tmp/dist ./dist
+COPY --from=source --chown=node:node /tmp/package*.json ./
+# COPY --from=source --chown=node:node /tmp/node_modules ./node_modules
+COPY .env ./
+
+EXPOSE 8000
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["node", "dist/src/main.js"]
+
+
+# 参考
+# # Base image, to create artifact
+# FROM node:18 AS build
+# WORKDIR /tmp
+# COPY package*.json ./
+# RUN yarn install
+
+# COPY --chown=node:node . .
+# RUN yarn run build
+# RUN yarn install --production --frozen-lockfile && yarn cache clean
+
+# FROM node:18-slim
+# WORKDIR /usr/src/app
+
+# COPY --from=build --chown=node:node /tmp/dist ./dist
+# COPY --from=build --chown=node:node /tmp/package*.json ./
+# COPY --from=build --chown=node:node /tmp/node_modules ./node_modules
+# COPY .env ./
+
+# ENTRYPOINT ["node", "dist/src/main.js"]

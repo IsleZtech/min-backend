@@ -1,0 +1,70 @@
+name: Deploy Sup Backend Staging to Fargate
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ECR_REGISTRY: 190623961132.dkr.ecr.ap-northeast-1.amazonaws.com
+  ECR_REPOSITORY: islez-sup-backend
+  AWS_REGION: ap-northeast-1
+  ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
+
+jobs:
+  build:
+    name: Deploy to Fargate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log deployment environment
+        run: |
+          echo "Deployment environment: STG"
+
+      - name: Setup env
+        run: |
+          echo "ADD_ENV_FROM_TERRAFORM" >> .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ env.ROLE_TO_ASSUME }}
+          role-session-name: GitHubActions-sup-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: 'true'
+
+      - name: Build, tag, and push image to Amazon ECR
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./docker/Dockerfile.stg
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:stg
+          # ssh: default
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/arm64
+
+      - name: Update ecs service
+        env:
+          ECS_CLUSTER: islez-sup-cluster-stg
+        run: |
+          LATEST_TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix $ECS_CLUSTER-backend --sort DESC  --query "taskDefinitionArns[0]" --output text --no-paginate)
+          echo "Latest Task Definition: $LATEST_TASK_DEFINITION"
+          aws ecs update-service --cluster $ECS_CLUSTER --service backend_service --task-definition $LATEST_TASK_DEFINITION --force-new-deployment
