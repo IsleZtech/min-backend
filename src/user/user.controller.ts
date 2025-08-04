@@ -26,85 +26,84 @@ import { DeleteCreateDto } from 'src/delete/dto/create.dto';
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
-  @Get('/find/:targetId')
-  @UsePipes(ValidationPipe)
-  findById(
-    @Param('targetId') targetId: string,
-    @Query('initiator_id') initiatorId: string,
-  ) {
-    return this.userService.findById(targetId, initiatorId);
-  }
+  // @Get('/find/:targetId')
+  // @UsePipes(ValidationPipe)
+  // findById(
+  //   @Param('targetId') targetId: string,
+  //   @Query('initiator_id') initiatorId: string,
+  // ) {
+  //   return this.userService.findById(targetId, initiatorId);
+  // }
 
-  @Get('/find/pincode/:targetPincode')
-  @UsePipes(ValidationPipe)
-  findByPinCode(
-    @Param('targetPincode') targetPinCode: string,
-    @Query('initiator_id') initiatorId: string,
-  ) {
-    return this.userService.findByPinCode(targetPinCode, initiatorId);
-  }
+  // @Get('/find/pincode/:targetPincode')
+  // @UsePipes(ValidationPipe)
+  // findByPinCode(
+  //   @Param('targetPincode') targetPinCode: string,
+  //   @Query('initiator_id') initiatorId: string,
+  // ) {
+  //   return this.userService.findByPinCode(targetPinCode, initiatorId);
+  // }
 
-  @Post('/find/phones')
-  @UsePipes(ValidationPipe)
-  friendsByPhones(@Body() friendsByPhonesDto: FindFriendsByPhoneDto) {
-    return this.userService.friendsByPhones(friendsByPhonesDto);
-  }
+  // @Post('/find/phones')
+  // @UsePipes(ValidationPipe)
+  // friendsByPhones(@Body() friendsByPhonesDto: FindFriendsByPhoneDto) {
+  //   return this.userService.friendsByPhones(friendsByPhonesDto);
+  // }
 
-  @Post('/find/ids')
-  @UsePipes(ValidationPipe)
-  friendsByIds(@Body() friendsByIds: string[]) {
-    return this.userService.friendsByIds(friendsByIds);
-  }
+  // @Post('/find/ids')
+  // @UsePipes(ValidationPipe)
+  // friendsByIds(@Body() friendsByIds: string[]) {
+  //   return this.userService.friendsByIds(friendsByIds);
+  // }
 
-  @Get('/search')
-  @UsePipes(ValidationPipe)
-  searchUser(@Query('keyword') keyword: string) {
-    return this.userService.searchUser(keyword);
-  }
+  // @Get('/search')
+  // @UsePipes(ValidationPipe)
+  // searchUser(@Query('keyword') keyword: string) {
+  //   return this.userService.searchUser(keyword);
+  // }
 
   @Post('/:id/startup')
   @UsePipes(ValidationPipe)
-  startupData(
-    @Param('id') id: string,
-    @Body() userStartupDto: { fcm_token: string; language: string },
-  ) {
-    return this.userService.startupData(
-      id,
-      userStartupDto.fcm_token,
-      userStartupDto.language,
-    );
+  startupData() // @Body() userStartupDto: { fcm_token: string; language: string }, // @Param('id') id: string,
+  {
+    return this.userService
+      .startupData
+      // id,
+      // userStartupDto.fcm_token,
+      // userStartupDto.language,
+      ();
   }
 
-  @Put('/update/:id')
-  @UsePipes(ValidationPipe)
-  updateUser(@Param('id') id: string, @Body() userUpdateDto: UserUpdateDto) {
-    return this.userService.updateUser(id, userUpdateDto);
-  }
+  // @Put('/update/:id')
+  // @UsePipes(ValidationPipe)
+  // updateUser(@Param('id') id: string, @Body() userUpdateDto: UserUpdateDto) {
+  //   return this.userService.updateUser(id, userUpdateDto);
+  // }
 
-  @Post('/phone/authenticate') //電話番号はサインアップとログイン同じAPIで行う
-  @UsePipes(ValidationPipe)
-  phoneAuthenticate(@Body() userCreateDto: UserCreateDto) {
-    return this.userService.phoneAuthenticate(userCreateDto);
-  }
+  // @Post('/phone/authenticate') //電話番号はサインアップとログイン同じAPIで行う
+  // @UsePipes(ValidationPipe)
+  // phoneAuthenticate(@Body() userCreateDto: UserCreateDto) {
+  //   return this.userService.phoneAuthenticate(userCreateDto);
+  // }
 
-  @Post('/logout/:id')
-  @UsePipes(ValidationPipe)
-  logoutUser(@Param('id') id: string) {
-    return this.userService.logoutUser(id);
-  }
+  // @Post('/logout/:id')
+  // @UsePipes(ValidationPipe)
+  // logoutUser(@Param('id') id: string) {
+  //   return this.userService.logoutUser(id);
+  // }
 
-  @Get('/refetch/:id')
-  @UsePipes(ValidationPipe)
-  refetch(@Param('id') id: string) {
-    return this.userService.refetch(id);
-  }
+  // @Get('/refetch/:id')
+  // @UsePipes(ValidationPipe)
+  // refetch(@Param('id') id: string) {
+  //   return this.userService.refetch(id);
+  // }
 
-  @Delete('/delete/:id')
-  @UsePipes(ValidationPipe)
-  deleteAccount(
-    @Param('id') id: string,
-    @Body() daleteCreateDto: DeleteCreateDto,
-  ) {
-    return this.userService.deleteAccount(id, daleteCreateDto);
-  }
+  // @Delete('/delete/:id')
+  // @UsePipes(ValidationPipe)
+  // deleteAccount(
+  //   @Param('id') id: string,
+  //   @Body() daleteCreateDto: DeleteCreateDto,
+  // ) {
+  //   return this.userService.deleteAccount(id, daleteCreateDto);
+  // }
 }

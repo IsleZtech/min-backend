@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './user.schema';
-import { Post } from './post.schema';
 
 export type AppNotificationDocument = HydratedDocument<AppNotification>;
 
@@ -22,12 +21,6 @@ export class AppNotification {
 
   @Prop({ required: true })
   type: string; //フォロー、いいね、コメントなど通知の種類を区別
-
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: Post.name,
-  })
-  post_id?: mongoose.Schema.Types.ObjectId; //投稿についての通知ならここに格納する
 
   @Prop({ default: false })
   is_read: boolean; //通知を見たかどうか

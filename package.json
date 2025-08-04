@@ -1,5 +1,5 @@
 {
-  "name": "sup-backend",
+  "name": "min-backend",
   "version": "0.0.1",
   "description": "",
   "author": "daisuke0316 <dshengtian6@gmail.com>",
@@ -37,7 +37,7 @@
     "class-validator": "^0.14.1",
     "firebase-admin": "^13.3.0",
     "mongodb": "^6.12.0",
-    "mongoose": "^8.9.2",
+    "mongoose": "^8.17.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
@@ -63,7 +63,7 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "5.8.3"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -84,5 +84,5 @@
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "main": "index.js",
-  "repository": "https://github.com/IsleZtech/sup-backend.git"
+  "repository": "https://github.com/IsleZtech/min_backend.git"
 }
