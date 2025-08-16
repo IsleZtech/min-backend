@@ -2,10 +2,6 @@ data "aws_ecr_repository" "app" {
   name = var.ecr_repository_name
 }
 
-data "aws_ecr_image" "app_image" {
-  repository_name = data.aws_ecr_repository.app.name
-  image_tag       = var.image_tag
-}
 
 data "aws_secretsmanager_secret" "app_secrets" {
   name = var.secrets_manager_name
@@ -63,6 +59,13 @@ resource "aws_lambda_function" "app" {
 
   package_type = "Image"
   image_uri    = "${data.aws_ecr_repository.app.repository_url}:${var.image_tag}"
+  
+  architectures = ["x86_64"]
+  
+  image_config {
+    entry_point = ["/lambda-entrypoint.sh"]
+    command     = ["index.handler"]
+  }
 
   environment {
     variables = merge(
