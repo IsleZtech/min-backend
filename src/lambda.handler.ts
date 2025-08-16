@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import serverlessExpress from '@vendia/serverless-express';
+import { configure } from '@vendia/serverless-express';
 import { Context, Handler } from 'aws-lambda';
 import express from 'express';
 import { AppModule } from './app.module';
@@ -31,14 +31,19 @@ async function bootstrap(): Promise<Handler> {
     const nestApp = await NestFactory.create(
       AppModule,
       new ExpressAdapter(expressApp),
-      { logger: ['error', 'warn'] }
     );
     
-    nestApp.enableCors();
-    await nestApp.init();
+    nestApp.enableCors({
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: false,
+      allowedHeaders: 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+    });
     
-    cachedServer = serverlessExpress({ app: expressApp });
+    await nestApp.init();
+    cachedServer = configure({ app: expressApp });
   }
+  
   return cachedServer;
 }
 

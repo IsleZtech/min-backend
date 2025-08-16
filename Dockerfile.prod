@@ -19,5 +19,6 @@ RUN npm ci --only=production
 
 COPY --from=builder /usr/app/dist ./dist
 COPY config ./config
+COPY index.js ./
 
-CMD ["dist/src/lambda.handler.handler"]
+CMD ["index.handler"]
