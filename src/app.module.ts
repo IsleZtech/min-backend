@@ -5,13 +5,11 @@ import configuration from 'config/configuration';
 import { UserModule } from './user/user.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { PostModule } from './post/post.module';
-import { FollowModule } from './follow/follow.module';
 import { BlockModule } from './block/block.module';
-import { MuteModule } from './mute/mute.module';
 import { DeleteModule } from './delete/delete.module';
 import { ReportModule } from './report/report.module';
-import { AppNotificationModule } from './notification/notification.module';
+import { MatchModule } from './match/match.module';
+import { ChatLogModule } from './chat_log/chat_log.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -27,13 +25,11 @@ import { AppNotificationModule } from './notification/notification.module';
       }),
     }),
     UserModule,
-    PostModule,
-    FollowModule,
     BlockModule,
-    MuteModule,
+    MatchModule,
+    ChatLogModule,
     DeleteModule,
     ReportModule,
-    AppNotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

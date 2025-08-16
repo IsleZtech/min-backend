@@ -15,9 +15,9 @@ import { ReportCreateDto } from './dto/create.dto';
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  @Post('/user/:id')
+  @Post('/create')
   @UsePipes(ValidationPipe)
-  createReport(@Param('id') id: string, @Body() createDto: ReportCreateDto) {
-    return this.reportService.create(id, createDto);
+  createReport(@Body() createDto: ReportCreateDto) {
+    return this.reportService.create(createDto);
   }
 }

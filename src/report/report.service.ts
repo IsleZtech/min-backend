@@ -16,21 +16,16 @@ export class ReportService {
     @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
   ) {}
 
-  async create(
-    userId: string,
-    createDto: ReportCreateDto,
-  ): Promise<ReportDocument> {
+  async create(createDto: ReportCreateDto): Promise<ReportDocument> {
     try {
-      const initiatorId = new mongoose.Types.ObjectId(userId);
+      const initiatorId = new mongoose.Types.ObjectId(createDto.initiator_user);
       const targetUserId = new mongoose.Types.ObjectId(createDto.target_user);
-      const targetPostId = new mongoose.Types.ObjectId(createDto.target_post);
       const existingReport = await this.reportModel.findOne({
         initiator_user: initiatorId,
         target_user: targetUserId,
-        ...(createDto.target_post && { target_post: targetPostId }),
       });
 
-      if (existingReport) {
+      if (existingReport && !createDto.message) {
         existingReport.reason_code = Number(createDto.reason_code);
         existingReport.reason = createDto.reason;
         return existingReport.save();
@@ -38,7 +33,7 @@ export class ReportService {
         const newData = new this.reportModel({
           ...createDto,
           target_user: targetUserId,
-          ...(createDto.target_post && { target_post: targetPostId }),
+          ...(createDto.message && { message: createDto.message }),
           initiator_user: initiatorId,
           reason_code: Number(createDto.reason_code),
         });

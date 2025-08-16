@@ -3,39 +3,30 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { UsersService } from './user.service';
 import { UsersController } from './user.controller';
-import { Block, BlockSchema } from 'src/schemas/block.schema';
-import { Mute, MuteSchema } from 'src/schemas/mute.schema';
-import { Follow, FollowSchema } from 'src/schemas/follow.schema';
-import { Post, PostSchema } from 'src/schemas/post.schema';
+
 import { Delete, DeleteSchema } from 'src/schemas/delete.schema';
-import { PostModule } from 'src/post/post.module';
-import { FollowModule } from 'src/follow/follow.module';
-import { MuteModule } from 'src/mute/mute.module';
 import { Report, ReportSchema } from 'src/schemas/report.schema';
 import { BlockModule } from 'src/block/block.module';
-import { AppNotificationModule } from 'src/notification/notification.module';
-import {
-  AppNotification,
-  AppNotificationSchema,
-} from 'src/schemas/notification';
+import { Block, BlockSchema } from 'src/schemas/block.schema';
+import { Match, MatchSchema } from 'src/schemas/match.schema';
+import { MatchModule } from 'src/match/match.module';
+import { ChatLogModule } from 'src/chat_log/chat_log.module';
+import { ChatLog, ChatLogSchema } from 'src/schemas/chat_log';
+import { DeleteModule } from 'src/delete/delete.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Block.name, schema: BlockSchema }]),
-    MongooseModule.forFeature([{ name: Mute.name, schema: MuteSchema }]),
-    MongooseModule.forFeature([{ name: Follow.name, schema: FollowSchema }]),
-    MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
+    MongooseModule.forFeature([{ name: Match.name, schema: MatchSchema }]),
+    MongooseModule.forFeature([{ name: ChatLog.name, schema: ChatLogSchema }]),
     MongooseModule.forFeature([{ name: Delete.name, schema: DeleteSchema }]),
-    MongooseModule.forFeature([{ name: Report.name, schema: ReportSchema }]),
-    MongooseModule.forFeature([
-      { name: AppNotification.name, schema: AppNotificationSchema },
-    ]),
-    FollowModule,
-    PostModule,
-    MuteModule,
+    MongooseModule.forFeature([{ name: Block.name, schema: BlockSchema }]),
+
+    MatchModule,
+    ChatLogModule,
     BlockModule,
-    AppNotificationModule,
+    DeleteModule,
+    // AppNotificationModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
