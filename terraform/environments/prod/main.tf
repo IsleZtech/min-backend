@@ -12,16 +12,56 @@ locals {
   project_name = "islez-min"
   role_name    = "min-role-prod"
   
-  # MongoDB Atlas PrivateLink service name
-  mongodb_atlas_service_name = "com.amazonaws.vpce.ap-northeast-1.vpce-svc-0a492de16a6d84e8e"
+  # 既存VPC情報
+  existing_vpc_id = "vpc-0f8f1ad4b6314201c"
+  existing_private_subnet_ids = [
+    "subnet-03bb02c488a34a5d9", # ap-northeast-1a
+    "subnet-0f5021bdf0fe75091", # ap-northeast-1c
+    "subnet-0f3b982cc9886c37f"  # ap-northeast-1d
+  ]
 }
 
-module "mongodb_privatelink" {
-  source = "../../modules/mongodb_privatelink"
-  
-  name_prefix                = "${local.project_name}-${local.environment}"
-  mongodb_atlas_service_name = local.mongodb_atlas_service_name
-  aws_region                = var.region
+# Security Group for Lambda
+resource "aws_security_group" "lambda" {
+  name_prefix = "${local.project_name}-${local.environment}-lambda-sg"
+  vpc_id      = local.existing_vpc_id
+  description = "Security group for Lambda function"
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS outbound"
+  }
+
+  egress {
+    from_port   = 27017
+    to_port     = 27017
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "MongoDB Atlas"
+  }
+
+  egress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "DNS resolution"
+  }
+
+  egress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "DNS resolution TCP"
+  }
+
+  tags = {
+    Name = "${local.project_name}-${local.environment}-lambda-sg"
+  }
 }
 
 module "lambda" {
@@ -31,18 +71,16 @@ module "lambda" {
   ecr_repository_name  = "${local.project_name}-${local.environment}"
   image_tag           = var.image_tag
   secrets_manager_name = "${local.project_name}-${local.environment}-secrets"
-  timeout             = 30
+  timeout             = 60
   memory_size         = 512
   
-  # VPC Configuration
-  vpc_subnet_ids         = module.mongodb_privatelink.subnet_ids
-  vpc_security_group_ids = [module.mongodb_privatelink.lambda_security_group_id]
+  # 既存VPC Configuration
+  vpc_subnet_ids         = local.existing_private_subnet_ids
+  vpc_security_group_ids = [aws_security_group.lambda.id]
   
   environment_variables = {
     ENVIRONMENT = local.environment
   }
-  
-  depends_on = [module.mongodb_privatelink]
 }
 
 module "api_gateway" {

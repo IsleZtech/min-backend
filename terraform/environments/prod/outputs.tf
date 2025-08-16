@@ -13,13 +13,3 @@ output "api_key_value" {
   value       = module.api_gateway.api_key_value
   sensitive   = true
 }
-
-output "vpc_endpoint_id" {
-  description = "MongoDB Atlas VPC Endpoint ID"
-  value       = module.mongodb_privatelink.vpc_endpoint_id
-}
-
-output "vpc_endpoint_dns" {
-  description = "VPC Endpoint DNS entries"
-  value       = module.mongodb_privatelink.vpc_endpoint_dns_names
-}
