@@ -10,100 +10,113 @@ import {
   Put,
   Delete,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
-import { ObjectId } from 'mongoose';
-import { UserLoginDto } from './dto/user-login.dto';
-import { UserCreateDto } from './dto/user-create.dto';
 import { UserUpdateDto } from './dto/user-update.dto';
-import { FindUsersByPhoneDto } from './dto/user-phone.dto';
-import { SearchUserDto } from './dto/users-search.dto';
-import { FindFriendsByPhoneDto } from './dto/user-friendsbyphones.dto';
-import { FindFriendsIdsDto } from './dto/user-friendsbyids.dto';
+import { Point, User, UsersDocument } from 'src/schemas/user.schema';
+import { UserCreateDto } from './dto/user-create.dto';
 import { DeleteCreateDto } from 'src/delete/dto/create.dto';
+import { Model } from 'mongoose';
+import { sendPushNotification } from 'src/Notification/notification';
+import { InjectModel } from '@nestjs/mongoose/dist';
 
 @Controller('user')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UsersDocument>,
+    private readonly userService: UsersService,
+  ) {}
 
-  // @Get('/find/:targetId')
-  // @UsePipes(ValidationPipe)
-  // findById(
-  //   @Param('targetId') targetId: string,
-  //   @Query('initiator_id') initiatorId: string,
-  // ) {
-  //   return this.userService.findById(targetId, initiatorId);
-  // }
-
-  // @Get('/find/pincode/:targetPincode')
-  // @UsePipes(ValidationPipe)
-  // findByPinCode(
-  //   @Param('targetPincode') targetPinCode: string,
-  //   @Query('initiator_id') initiatorId: string,
-  // ) {
-  //   return this.userService.findByPinCode(targetPinCode, initiatorId);
-  // }
-
-  // @Post('/find/phones')
-  // @UsePipes(ValidationPipe)
-  // friendsByPhones(@Body() friendsByPhonesDto: FindFriendsByPhoneDto) {
-  //   return this.userService.friendsByPhones(friendsByPhonesDto);
-  // }
-
-  // @Post('/find/ids')
-  // @UsePipes(ValidationPipe)
-  // friendsByIds(@Body() friendsByIds: string[]) {
-  //   return this.userService.friendsByIds(friendsByIds);
-  // }
-
-  // @Get('/search')
-  // @UsePipes(ValidationPipe)
-  // searchUser(@Query('keyword') keyword: string) {
-  //   return this.userService.searchUser(keyword);
-  // }
-
-  @Post('/:id/startup')
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  // 取得系
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  @Post('startup/:id')
   @UsePipes(ValidationPipe)
-  startupData() // @Body() userStartupDto: { fcm_token: string; language: string }, // @Param('id') id: string,
-  {
-    return this.userService
-      .startupData
-      // id,
-      // userStartupDto.fcm_token,
-      // userStartupDto.language,
-      ();
+  startupData(
+    @Param('id') id: string,
+    @Body()
+    userStartupDto: {
+      fcm_token: string;
+      language: string;
+      location: Point;
+      max_distance: number;
+    },
+  ) {
+    return this.userService.startupData(
+      id,
+      userStartupDto.fcm_token,
+      userStartupDto.language,
+      userStartupDto.location,
+      userStartupDto.max_distance,
+    );
   }
 
-  // @Put('/update/:id')
-  // @UsePipes(ValidationPipe)
-  // updateUser(@Param('id') id: string, @Body() userUpdateDto: UserUpdateDto) {
-  //   return this.userService.updateUser(id, userUpdateDto);
-  // }
+  @Post('/fetch/swipe/:id')
+  @UsePipes(ValidationPipe)
+  swipeUsers(
+    @Param('id') id: string,
+    @Body() body: { location: Point; max_distance: number },
+  ) {
+    return this.userService.swipeUsers(id, body.location, body.max_distance);
+  }
+  @Post('/fetch/:id')
+  @UsePipes(ValidationPipe)
+  fetchUser(@Param('id') id: string) {
+    return this.userService.fetchUser(id);
+  }
 
-  // @Post('/phone/authenticate') //電話番号はサインアップとログイン同じAPIで行う
-  // @UsePipes(ValidationPipe)
-  // phoneAuthenticate(@Body() userCreateDto: UserCreateDto) {
-  //   return this.userService.phoneAuthenticate(userCreateDto);
-  // }
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  // 更新系
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  @Put('/update/:id')
+  @UsePipes(ValidationPipe)
+  updateUser(@Param('id') id: string, @Body() userUpdateDto: UserUpdateDto) {
+    return this.userService.updateUser(id, userUpdateDto);
+  }
 
-  // @Post('/logout/:id')
-  // @UsePipes(ValidationPipe)
-  // logoutUser(@Param('id') id: string) {
-  //   return this.userService.logoutUser(id);
-  // }
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  // サインアップ / ログアウト/削除
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  @Post('/signup/phone') //電話番号はサインアップとログイン同じAPIで行う
+  @UsePipes(ValidationPipe)
+  phoneAuthenticate(@Body() userCreateDto: UserCreateDto) {
+    return this.userService.phoneAuthenticate(userCreateDto);
+  }
 
-  // @Get('/refetch/:id')
-  // @UsePipes(ValidationPipe)
-  // refetch(@Param('id') id: string) {
-  //   return this.userService.refetch(id);
-  // }
+  @Post('/logout/:id')
+  @UsePipes(ValidationPipe)
+  logoutUser(@Param('id') id: string) {
+    return this.userService.logoutUser(id);
+  }
 
-  // @Delete('/delete/:id')
-  // @UsePipes(ValidationPipe)
-  // deleteAccount(
-  //   @Param('id') id: string,
-  //   @Body() daleteCreateDto: DeleteCreateDto,
-  // ) {
-  //   return this.userService.deleteAccount(id, daleteCreateDto);
-  // }
+  @Delete('/delete/:id')
+  @UsePipes(ValidationPipe)
+  deleteAccount(
+    @Param('id') id: string,
+    @Body() daleteCreateDto: DeleteCreateDto,
+  ) {
+    return this.userService.deleteAccount(id, daleteCreateDto);
+  }
+
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+  // 通知を送る
+  //＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊//
+
+  @Post('/notify/call/')
+  @HttpCode(204)
+  async sendNotification(
+    @Body()
+    dto: {
+      target_user: string;
+      send_user: string;
+    },
+  ) {
+    await sendPushNotification(
+      this.userModel,
+      'call',
+      dto.target_user,
+      dto.send_user,
+    );
+  }
 }

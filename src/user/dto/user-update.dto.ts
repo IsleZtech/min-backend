@@ -1,21 +1,41 @@
 import { IsOptional, Matches } from 'class-validator';
 
 export class UserUpdateDto {
-  user_name: string; //ユーザ名
+  fcm_token?: string;
 
-  profile_image: string; //ユーザ画像
+  user_name?: string; //ユーザ名
 
-  bio: string; //ユーザの一言
+  birthday?: string;
 
-  birthday: string; //誕生日 2000-01-01
+  profile_images?: string[]; //ユーザ画像
 
-  is_top_supporterst: boolean; //トップサポーターの公開設定
+  language?: String;
 
-  is_public_account: boolean; //アカウントの公開設定
+  gender?: number;
 
-  is_phone_number_searchable: boolean; //電話番号で検索可能かどうか
+  bio?: string; //ユーザの一言
 
-  fcm_token: String;
+  country?: string;
 
-  language: String;
+  prefecture?: string;
+
+  location?: string;
+
+  instagram_id?: string;
+
+  beReal_id?: string;
+
+  tiktok_id?: string;
+
+  height?: string;
+
+  mbti?: string;
+
+  dayOff?: string;
+
+  exercise?: string;
+
+  alcohol?: string;
+
+  smoking?: string;
 }

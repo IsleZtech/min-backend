@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose/dist';
 import mongoose, { Model } from 'mongoose';
 import { Block, BlockDocument } from 'src/schemas/block.schema';
+import { USER_PREVIEW_FIELDS } from 'src/user/user.service';
 
 @Injectable()
 export class BlockService {
@@ -19,7 +20,6 @@ export class BlockService {
     targetId: string,
     toggle: 'add' | 'delete',
   ): Promise<Block[]> {
-    const userPopulate = { select: '_id user_name profile_image' };
     const initiatorObjectId = new mongoose.Types.ObjectId(initiatorId);
     const targetObjectId = new mongoose.Types.ObjectId(targetId);
     const existingBlock = await this.blockModel.findOne({
@@ -56,16 +56,15 @@ export class BlockService {
 
     return await this.blockModel
       .find({ initiator: initiatorObjectId })
-      .populate({ path: 'target', ...userPopulate })
+      .populate({ path: 'target', ...USER_PREVIEW_FIELDS })
       .sort({ createdAt: -1 })
       .exec();
   }
 
-  async getTargetUsers(initiatorId: string): Promise<Block[]> {
-    const userPopulate = { select: '_id user_name profile_image' };
+  async fetchUsers(initiatorId: mongoose.Types.ObjectId): Promise<Block[]> {
     return await this.blockModel
-      .find({ initiator: new mongoose.Types.ObjectId(initiatorId) })
-      .populate({ path: 'target', ...userPopulate })
+      .find({ initiator: initiatorId })
+      .populate({ path: 'target', ...USER_PREVIEW_FIELDS })
       .sort({ createdAt: -1 })
       .exec();
   }

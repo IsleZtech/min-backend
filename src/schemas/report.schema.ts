@@ -25,6 +25,9 @@ export class Report {
 
   @Prop({ required: true })
   reason: string;
+
+  @Prop({ default: null })
+  message: Record<string, any>[];
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report);

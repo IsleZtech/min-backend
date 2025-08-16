@@ -8,7 +8,8 @@ import { AppController } from './app.controller';
 import { BlockModule } from './block/block.module';
 import { DeleteModule } from './delete/delete.module';
 import { ReportModule } from './report/report.module';
-import { AppNotificationModule } from './notification/notification.module';
+import { MatchModule } from './match/match.module';
+import { ChatLogModule } from './chat_log/chat_log.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,9 +26,10 @@ import { AppNotificationModule } from './notification/notification.module';
     }),
     UserModule,
     BlockModule,
+    MatchModule,
+    ChatLogModule,
     DeleteModule,
     ReportModule,
-    AppNotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
