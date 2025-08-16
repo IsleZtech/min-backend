@@ -33,6 +33,12 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_role.name
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_vpc" {
+  count      = length(var.vpc_subnet_ids) > 0 ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  role       = aws_iam_role.lambda_role.name
+}
+
 resource "aws_iam_role_policy" "lambda_secrets" {
   name = "${var.function_name}-secrets-policy"
   role = aws_iam_role.lambda_role.id
@@ -74,5 +80,14 @@ resource "aws_lambda_function" "app" {
       },
       var.environment_variables
     )
+  }
+  
+  # VPC Configuration
+  dynamic "vpc_config" {
+    for_each = length(var.vpc_subnet_ids) > 0 ? [1] : []
+    content {
+      subnet_ids         = var.vpc_subnet_ids
+      security_group_ids = var.vpc_security_group_ids
+    }
   }
 }

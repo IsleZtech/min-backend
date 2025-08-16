@@ -18,6 +18,7 @@ resource "aws_api_gateway_method" "proxy" {
   resource_id   = aws_api_gateway_resource.proxy.id
   http_method   = "ANY"
   authorization = "NONE"
+  api_key_required = var.enable_api_key
 }
 
 resource "aws_api_gateway_method" "proxy_root" {
@@ -25,6 +26,7 @@ resource "aws_api_gateway_method" "proxy_root" {
   resource_id   = aws_api_gateway_rest_api.api.root_resource_id
   http_method   = "ANY"
   authorization = "NONE"
+  api_key_required = var.enable_api_key
 }
 
 resource "aws_api_gateway_integration" "lambda" {
@@ -63,6 +65,39 @@ resource "aws_lambda_permission" "api_gateway" {
   function_name = var.lambda_function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+}
+
+# API Key and Usage Plan
+resource "aws_api_gateway_api_key" "api_key" {
+  count = var.enable_api_key ? 1 : 0
+  name  = var.api_key_name != "" ? var.api_key_name : "${var.api_name}-key"
+}
+
+resource "aws_api_gateway_usage_plan" "usage_plan" {
+  count = var.enable_api_key ? 1 : 0
+  name  = "${var.api_name}-usage-plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.api.id
+    stage  = aws_api_gateway_deployment.api.stage_name
+  }
+
+  quota_settings {
+    limit  = 10000
+    period = "DAY"
+  }
+
+  throttle_settings {
+    burst_limit = 100
+    rate_limit  = 50
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "usage_plan_key" {
+  count         = var.enable_api_key ? 1 : 0
+  key_id        = aws_api_gateway_api_key.api_key[0].id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.usage_plan[0].id
 }
 
 # Custom Domain Configuration

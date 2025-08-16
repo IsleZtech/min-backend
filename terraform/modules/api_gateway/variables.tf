@@ -48,3 +48,15 @@ variable "create_custom_domain" {
   type        = bool
   default     = false
 }
+
+variable "enable_api_key" {
+  description = "Enable API key authentication"
+  type        = bool
+  default     = false
+}
+
+variable "api_key_name" {
+  description = "Name for the API key"
+  type        = string
+  default     = ""
+}
