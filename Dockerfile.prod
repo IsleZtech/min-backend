@@ -18,7 +18,6 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY --from=builder /usr/app/dist ./dist
-COPY --from=builder /usr/app/src/lambda.handler.ts ./dist/
 COPY config ./config
 
-CMD ["dist/lambda.handler"]
+CMD ["dist/lambda.handler.handler"]
