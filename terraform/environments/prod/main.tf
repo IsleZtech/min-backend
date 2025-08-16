@@ -35,4 +35,10 @@ module "api_gateway" {
   stage_name          = local.environment
   lambda_function_name = module.lambda.lambda_function_name
   lambda_invoke_arn   = module.lambda.lambda_invoke_arn
+  
+  # Custom domain configuration
+  create_custom_domain = true
+  custom_domain_name   = "min.sup-api.com"
+  certificate_arn     = "arn:aws:acm:ap-northeast-1:190623961132:certificate/2bc1099e-ab47-4bd8-aeef-49e91f96286a"
+  hosted_zone_id      = "Z05113242J9D9UG3V632B"
 }

@@ -64,3 +64,41 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
+
+# Custom Domain Configuration
+resource "aws_api_gateway_domain_name" "custom_domain" {
+  count                    = var.create_custom_domain ? 1 : 0
+  domain_name              = var.custom_domain_name
+  regional_certificate_arn = var.certificate_arn
+  
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
+}
+
+resource "aws_api_gateway_base_path_mapping" "mapping" {
+  count       = var.create_custom_domain ? 1 : 0
+  api_id      = aws_api_gateway_rest_api.api.id
+  stage_name  = var.stage_name
+  domain_name = aws_api_gateway_domain_name.custom_domain[0].domain_name
+  depends_on  = [aws_api_gateway_deployment.api]
+}
+
+# Route53 Record
+data "aws_route53_zone" "main" {
+  count   = var.create_custom_domain ? 1 : 0
+  zone_id = var.hosted_zone_id
+}
+
+resource "aws_route53_record" "api_gateway" {
+  count   = var.create_custom_domain ? 1 : 0
+  zone_id = data.aws_route53_zone.main[0].zone_id
+  name    = var.custom_domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_api_gateway_domain_name.custom_domain[0].regional_domain_name
+    zone_id                = aws_api_gateway_domain_name.custom_domain[0].regional_zone_id
+    evaluate_target_health = false
+  }
+}
