@@ -20,4 +20,4 @@ RUN npm ci --only=production
 COPY --from=builder /usr/app/dist ./dist
 COPY config ./config
 
-CMD ["dist/lambda.handler.handler"]
+CMD ["dist/src/lambda.handler.handler"]
