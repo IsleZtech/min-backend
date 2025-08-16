@@ -20,8 +20,7 @@ import { ChatLogModule } from './chat_log/chat_log.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
-        uri: process.env.MONGO_URL,
-        // config.get<string>('MONGO_DB_CONNECTION'),
+        uri: config.get<string>('MONGO_DB_CONNECTION'),
       }),
     }),
     UserModule,
