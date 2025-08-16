@@ -1,0 +1,24 @@
+FROM public.ecr.aws/lambda/nodejs:20 AS builder
+
+WORKDIR /usr/app
+
+COPY package*.json ./
+COPY tsconfig*.json nest-cli.json ./
+RUN npm ci
+
+COPY src ./src
+COPY config ./config
+RUN npm run build
+
+FROM public.ecr.aws/lambda/nodejs:20
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /usr/app/dist ./dist
+COPY --from=builder /usr/app/src/lambda.handler.ts ./dist/
+COPY config ./config
+
+CMD ["dist/lambda.handler"]

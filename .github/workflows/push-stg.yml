@@ -1,4 +1,4 @@
-name: Deploy Sup Backend Staging to Fargate
+name: Deploy Min Backend Staging to Lambda
 
 on:
   push:
@@ -11,13 +11,14 @@ permissions:
 
 env:
   ECR_REGISTRY: 190623961132.dkr.ecr.ap-northeast-1.amazonaws.com
-  ECR_REPOSITORY: islez-sup-backend
+  ECR_REPOSITORY: islez-min-stg
   AWS_REGION: ap-northeast-1
   ROLE_TO_ASSUME: ${{ secrets.ROLE_TO_ASSUME }}
+  LAMBDA_FUNCTION_NAME: islez-min-stg
 
 jobs:
   build:
-    name: Deploy to Fargate
+    name: Deploy to Lambda
     runs-on: ubuntu-latest
 
     steps:
@@ -28,9 +29,6 @@ jobs:
         run: |
           echo "Deployment environment: STG"
 
-      - name: Setup env
-        run: |
-          echo "ADD_ENV_FROM_TERRAFORM" >> .env
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -39,7 +37,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: ${{ env.ROLE_TO_ASSUME }}
-          role-session-name: GitHubActions-sup-${{ github.run_id }}
+          role-session-name: GitHubActions-min-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -52,19 +50,25 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./docker/Dockerfile.stg
+          file: ./Dockerfile.prod
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:stg
-          # ssh: default
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/arm64
+          platforms: linux/amd64
 
-      - name: Update ecs service
-        env:
-          ECS_CLUSTER: islez-sup-cluster-stg
+      - name: Update Lambda function
         run: |
-          LATEST_TASK_DEFINITION=$(aws ecs list-task-definitions --family-prefix $ECS_CLUSTER-backend --sort DESC  --query "taskDefinitionArns[0]" --output text --no-paginate)
-          echo "Latest Task Definition: $LATEST_TASK_DEFINITION"
-          aws ecs update-service --cluster $ECS_CLUSTER --service backend_service --task-definition $LATEST_TASK_DEFINITION --force-new-deployment
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --image-uri ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+            --region ${{ env.AWS_REGION }}
+          
+          echo "Waiting for Lambda function to be updated..."
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --region ${{ env.AWS_REGION }}
+          
+          echo "Lambda function updated successfully"
