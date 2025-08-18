@@ -60,7 +60,7 @@ export class UsersService {
       this.blockService.fetchUsers(id),
     ]);
 
-    // if (userData.fcm_token !== fcm_token) userData.fcm_token = fcm_token;
+    if (userData.fcm_token !== fcm_token) userData.fcm_token = fcm_token;
     userData.location = location;
     userData.language = language;
     await userData.save();
