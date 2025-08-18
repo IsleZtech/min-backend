@@ -29,7 +29,9 @@ export async function sendPushNotification(
 
     const messeText = messe.replace(/@/g, tUser.user_name);
     const message: admin.messaging.Message = {
-      token: String(tUser.fcm_token),
+      //後
+      // token: String(tUser.fcm_token),
+      token: String(sUser.fcm_token),
       notification: { title: title, body: messeText },
       data: {
         title: title,
