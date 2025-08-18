@@ -25,7 +25,7 @@ export async function sendPushNotification(
 
     if (!tUser.fcm_token || !title || !messe) return;
 
-    await getFirebaseApp();
+    getFirebaseApp();
 
     const messeText = messe.replace(/@/g, tUser.user_name);
     const message: admin.messaging.Message = {
