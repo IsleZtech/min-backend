@@ -63,7 +63,6 @@ export class UsersService {
     // if (userData.fcm_token !== fcm_token) userData.fcm_token = fcm_token;
     userData.location = location;
     userData.language = language;
-    console.log();
     await userData.save();
     return {
       user: userData,
