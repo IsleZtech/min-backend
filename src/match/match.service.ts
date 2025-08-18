@@ -55,8 +55,10 @@ export class MatchService {
     try {
       const id = new mongoose.Types.ObjectId(myId);
       const swipedUsers = await this.fetchAlreadySwipedUsers(id);
-      const matchingUsers = this.fetchMatchingUsers(id, swipedUsers);
-      const likedMeUsers = this.fetchLikedMeUsers(id, swipedUsers, 999);
+      const [matchingUsers, likedMeUsers] = await Promise.all([
+        this.fetchMatchingUsers(id, swipedUsers),
+        this.fetchLikedMeUsers(id, swipedUsers, 999),
+      ]);
       return {
         matching_users: matchingUsers,
         liked_me_user: {
