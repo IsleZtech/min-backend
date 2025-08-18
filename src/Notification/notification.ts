@@ -15,7 +15,7 @@ export async function sendPushNotification(
     const sId = new mongoose.Types.ObjectId(sendUserId);
     const [tUser, sUser] = await Promise.all([
       userModel.findOne({ _id: tId }).lean(),
-      userModel.findOne({ _id: tId }).lean(),
+      userModel.findOne({ _id: sId }).lean(),
     ]);
 
     if (!tUser) return;
