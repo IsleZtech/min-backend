@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
 import mongoose, { Model } from 'mongoose';
 import { title } from 'process';
-import { getFirebaseApp } from 'src/firebase copy/firebase';
+import { getFirebaseApp } from 'src/firebase/firebase';
 import { UsersDocument } from 'src/schemas/user.schema';
 
 export async function sendPushNotification(
