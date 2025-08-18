@@ -63,6 +63,7 @@ export class UsersService {
     if (userData.fcm_token !== fcm_token) userData.fcm_token = fcm_token;
     userData.location = location;
     userData.language = language;
+
     await userData.save();
     return {
       user: userData,
@@ -189,8 +190,7 @@ export class UsersService {
   ): Promise<any> {
     const ids = [
       myId,
-      //後
-      //...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
+      ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
     ];
     return this.userModel
       .find({
