@@ -190,7 +190,7 @@ export class UsersService {
   ): Promise<any> {
     const ids = [
       myId,
-      ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
+      // ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
     ];
     return this.userModel
       .find({

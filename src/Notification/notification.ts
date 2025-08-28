@@ -19,7 +19,6 @@ export async function sendPushNotification(
     ]);
 
     if (!tUser) return;
-
     const title = messageDatas?.[type]?.[tUser.language]?.['title'];
     const messe = messageDatas?.[type]?.[tUser.language]?.['message'];
 
