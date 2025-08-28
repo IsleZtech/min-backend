@@ -188,9 +188,12 @@ export class UsersService {
     myId: mongoose.Types.ObjectId,
     swipedUsers: any[],
   ): Promise<any> {
+    if ('68901c82a34d4049f826f67d' === myId.toString()) {
+      return this.fetchSwipeUsersForTestUser();
+    }
     const ids = [
       myId,
-      // ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
+      ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
     ];
     return this.userModel
       .find({
@@ -202,6 +205,22 @@ export class UsersService {
             $geometry: point,
             $maxDistance: maxDistance,
           },
+        },
+      })
+      .limit(10)
+      .exec();
+  }
+  async fetchSwipeUsersForTestUser(): Promise<any> {
+    return this.userModel
+      .find({
+        is_deleted: false,
+        is_login: true,
+        _id: {
+          $in: [
+            '689da958adcbb4f6ab13f7bc',
+            '68901ba7a34d4049f826f676',
+            '68a550f6409d6b38026a359a',
+          ],
         },
       })
       .limit(10)
