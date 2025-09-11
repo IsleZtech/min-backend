@@ -195,21 +195,19 @@ export class UsersService {
       myId,
       ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
     ];
-    return this.userModel
-      .find({
-        is_deleted: false,
-        is_login: true,
-        ...(ids.length > 0 && { _id: { $nin: ids } }),
-        location: {
-          $near: {
-            $geometry: point,
-            $maxDistance: maxDistance,
-          },
-        },
-      })
-      .limit(10)
+    const find = {
+      is_deleted: false,
+      is_login: true,
+      ...(ids.length > 0 && { _id: { $nin: ids } }),
+      location: { $near: { $geometry: point, $maxDistance: maxDistance } },
+    };
+    const femaleUser = await this.userModel
+      .findOne({ gender: 2, ...find })
       .exec();
+    const swipeUsers = await this.userModel.find(find).limit(10).exec();
+    return femaleUser ? [femaleUser, ...swipeUsers] : swipeUsers;
   }
+
   async fetchSwipeUsersForTestUser(): Promise<any> {
     return this.userModel
       .find({
