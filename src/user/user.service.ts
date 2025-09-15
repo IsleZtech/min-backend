@@ -191,6 +191,9 @@ export class UsersService {
     if ('68901c82a34d4049f826f67d' === myId.toString()) {
       return this.fetchSwipeUsersForTestUser();
     }
+    // if ('689da958adcbb4f6ab13f7bc' === myId.toString()) {
+    //   return this.fetchSwipeUsersForTestUser(['68901c82a34d4049f826f67d']);
+    // }
     const ids = [
       myId,
       ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
@@ -208,13 +211,13 @@ export class UsersService {
     return femaleUser ? [femaleUser, ...swipeUsers] : swipeUsers;
   }
 
-  async fetchSwipeUsersForTestUser(): Promise<any> {
+  async fetchSwipeUsersForTestUser(selectUser?: string[]): Promise<any> {
     return this.userModel
       .find({
         is_deleted: false,
         is_login: true,
         _id: {
-          $in: [
+          $in: selectUser ?? [
             '689da958adcbb4f6ab13f7bc',
             '68901ba7a34d4049f826f676',
             '68a550f6409d6b38026a359a',

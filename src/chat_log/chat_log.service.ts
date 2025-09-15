@@ -66,7 +66,7 @@ export class ChatLogService {
     return this.transformData(new mongoose.Types.ObjectId(id), log);
   }
   async fetchChatLogs(id: mongoose.Types.ObjectId): Promise<any[]> {
-    const find = { $or: [{ initiator_user: id }, { targe_user: id }] };
+    const find = { $or: [{ initiator_user: id }, { target_user: id }] };
     const populate1 = { path: 'initiator_user', ...USER_PREVIEW_FIELDS };
     const populate2 = { path: 'target_user', ...USER_PREVIEW_FIELDS };
     const logs = await this.chatLogModel
