@@ -191,11 +191,15 @@ export class UsersService {
     if ('68901c82a34d4049f826f67d' === myId.toString()) {
       return this.fetchSwipeUsersForTestUser();
     }
+    if ('68b818ccf53c8f832e395f9a' === myId.toString()) {
+      return this.fetchSwipeUsersForTestUser(testDataUsers);
+    }
     // if ('689da958adcbb4f6ab13f7bc' === myId.toString()) {
     //   return this.fetchSwipeUsersForTestUser(['68901c82a34d4049f826f67d']);
     // }
     const ids = [
       myId,
+      ...testDataUsers.map(id => new mongoose.Types.ObjectId(id)),
       ...swipedUsers.map(match => match.target_user as mongoose.Types.ObjectId),
     ];
     const find = {
@@ -212,19 +216,33 @@ export class UsersService {
   }
 
   async fetchSwipeUsersForTestUser(selectUser?: string[]): Promise<any> {
+    const order = selectUser ?? [
+      '689da958adcbb4f6ab13f7bc',
+      '68901ba7a34d4049f826f676',
+      '68a550f6409d6b38026a359a',
+    ];
+    const ids = order.map(id => new mongoose.Types.ObjectId(id));
     return this.userModel
-      .find({
-        is_deleted: false,
-        is_login: true,
-        _id: {
-          $in: selectUser ?? [
-            '689da958adcbb4f6ab13f7bc',
-            '68901ba7a34d4049f826f676',
-            '68a550f6409d6b38026a359a',
-          ],
+      .aggregate([
+        {
+          $match: {
+            _id: { $in: ids },
+          },
         },
-      })
-      .limit(10)
+        { $addFields: { __order: { $indexOfArray: [ids, '$_id'] } } },
+        { $sort: { __order: 1 } },
+        { $project: { __order: 0 } },
+        { $limit: 10 },
+      ])
       .exec();
   }
 }
+
+const testDataUsers = [
+  '68c8f2d45c0fb2ce9ceaf02b',
+  '68c8f2d45c0fb2ce9ceaf02c',
+  '68c8f2d45c0fb2ce9ceaf02a',
+  '68c8f2d45c0fb2ce9ceaf02d',
+  '68c8f2d45c0fb2ce9ceaf02e',
+  '689da958adcbb4f6ab13f7bc',
+];
